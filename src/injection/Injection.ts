@@ -5,19 +5,17 @@ const api = ((window as unknown) as {
     }
 }).api;
 
-let orgOnMessage: ((this: any, ev: MessageEvent) => any) | null;
-const onMessage = (e: MessageEvent): void => {
-    api.dataRecieved(new Uint8Array(e.data));
-    orgOnMessage?.call(orgOnMessage, e);
-};
-
-const orgSend = WebSocket.prototype.send;
-WebSocket.prototype.send = function(data: Uint8Array): void {
-    if (!orgOnMessage) {
-        orgOnMessage = this.onmessage;
-        this.onmessage = onMessage;
+Object.defineProperty(WebSocket.prototype, 'onmessage', {
+    set(this: WebSocket, handler: (this: WebSocket, e: MessageEvent) => void) {
+        this.addEventListener('message', (e) => {
+            api.dataRecieved(new Uint8Array(e.data));
+            handler.call(this, e);
+        });
     }
+});
 
+const _send = WebSocket.prototype.send;
+WebSocket.prototype.send = function(data: Uint8Array): void {
     api.dataSent(data);
-    orgSend.call(this, data);
+    _send.call(this, data);
 };
