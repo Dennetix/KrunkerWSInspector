@@ -1,0 +1,31 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.top-bar {
+    padding: 0.35rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+    background: #ececec;
+}
+
+.top-bar * {
+    margin-right: 0.3rem;
+}
+
+.top-bar input[type='checkbox'] {
+    margin-left: 0.5rem;
+}
+
+.top-bar input {
+    position: relative;
+    top: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 3px;
+    outline: none;
+}
+
+.list {
+    overflow-y: auto;
+}
