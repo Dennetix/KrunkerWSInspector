@@ -12,13 +12,13 @@ export const MessageList: React.FC = () => {
     const [showRecieved, setShowRecieved] = React.useState<boolean>(true);
 
     const onFilterChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        const value = e.target.value.replace(/(\s|[^a-z0-9,])/gi, '');
+        const value = e.target.value.replace(/(\s|[^a-z0-9,-])/gi, '');
         const newFilter = value.split(',').map(v => v.toLowerCase());
         newFilter[0] !== '' ? setFilter(newFilter) : setFilter([]);
     };
 
     const onExcludeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        const value = e.target.value.replace(/(\s|[^a-z0-9,])/gi, '');
+        const value = e.target.value.replace(/(\s|[^a-z0-9,-])/gi, '');
         const newExclude = value.split(',').map(v => v.toLowerCase());
         newExclude[0] !== '' ? setExclude(newExclude) : setExclude([]);
     };

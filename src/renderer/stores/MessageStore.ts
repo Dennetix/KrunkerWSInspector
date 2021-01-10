@@ -23,7 +23,7 @@ class MessageStore {
 
     public addMessage(data: [string, ...any], sent: boolean): void {
         this.messages.push({
-            key: crypto.createHash('md5').update(JSON.stringify(data) + crypto.randomBytes(2).toString('hex')).digest('hex').substr(0, 6),
+            key: crypto.createHash('md5').update(JSON.stringify(data) + crypto.randomBytes(4).toString('hex')).digest('hex').substr(0, 8),
             data,
             sent
         });
