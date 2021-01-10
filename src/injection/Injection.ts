@@ -1,15 +1,13 @@
-import { decode } from 'msgpack-lite';
-
 const api = ((window as unknown) as {
     api: {
-        dataRecieved: (data: [string, ...any]) => void,
-        dataSent: (data: [string, ...any], lastBytes: [number, number]) => void
+        dataRecieved: (data: Uint8Array) => void,
+        dataSent: (data: Uint8Array) => void
     }
 }).api;
 
 let orgOnMessage: ((this: any, ev: MessageEvent) => any) | null;
 const onMessage = (e: MessageEvent): void => {
-    api.dataRecieved(decode(new Uint8Array(e.data)));
+    api.dataRecieved(new Uint8Array(e.data));
     orgOnMessage?.call(orgOnMessage, e);
 };
 
@@ -20,11 +18,6 @@ WebSocket.prototype.send = function(data: Uint8Array): void {
         this.onmessage = onMessage;
     }
 
-    const lastBytes: [number, number] = [
-        data[data.length - 2],
-        data[data.length - 1]
-    ];
-
-    api.dataSent(decode(data), lastBytes);
+    api.dataSent(data);
     orgSend.call(this, data);
 };

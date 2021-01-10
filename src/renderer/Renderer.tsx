@@ -12,10 +12,10 @@ const App: React.FC = () => {
 
 render(<App />, document.getElementById('app'));
 
-ipcRenderer.on('data-recieved', (e, args: [[string, ...any]]) => {
+ipcRenderer.on('data-recieved', (e, args: [Uint8Array]) => {
     messageStore.addMessage(args[0], false);
 });
 
-ipcRenderer.on('data-sent', (e, args: [[string, ...any], [number, number]]) => {
+ipcRenderer.on('data-sent', (e, args: [Uint8Array]) => {
     messageStore.addMessage(args[0], true);
 });

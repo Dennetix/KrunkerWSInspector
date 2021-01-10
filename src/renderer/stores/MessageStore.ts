@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
 import { action, makeObservable, observable } from 'mobx';
+import { decode } from 'msgpack-lite';
 
 export interface Message {
     data: [string, ...any],
@@ -21,11 +22,13 @@ class MessageStore {
         this.messages = [];
     }
 
-    public addMessage(data: [string, ...any], sent: boolean): void {
+    public addMessage(data: Uint8Array, sent: boolean): void {
+        const json = decode(data) as [string, ...any];
+
         this.messages.push({
-            key: crypto.createHash('md5').update(JSON.stringify(data) + crypto.randomBytes(4).toString('hex')).digest('hex').substr(0, 8),
-            data,
-            sent
+            data: json,
+            sent,
+            key: crypto.createHash('md5').update(Buffer.concat([data.subarray(0, 50), crypto.randomBytes(4)])).digest('hex').substr(0, 8)
         });
     }
 
