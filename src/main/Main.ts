@@ -71,6 +71,4 @@ app.once('ready', () => {
         }
         injWin = openInjWindow();
     });
-
-    ipcMain.handle('get-webcontents-id', () => win.webContents.id);
 });
