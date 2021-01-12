@@ -14,11 +14,18 @@
     flex: 10%;
     padding: 0 1rem;
     font-weight: 500;
+}
+
+.type-sent {
+    background: #bdf8d1;
+}
+
+.type-recieved {
     background: #ffeacf;
 }
 
-.typeSent {
-    background: #bdf8d1;
+.type-event {
+    background: #f8d8ff;
 }
 
 .data {

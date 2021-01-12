@@ -8,7 +8,7 @@ interface MessageListEntryProps {
     message: Message;
 }
 
-export const MessageListEntry: React.FC<MessageListEntryProps> = (props) => {
+export const MessageListEntry: React.FC<MessageListEntryProps> = React.memo(function MessageListEntry(props) {
     const [expanded, setExpanded] = React.useState<boolean>(false);
     const [copySuccess, setCopySuccess] = React.useState<boolean>(false);
 
@@ -26,7 +26,15 @@ export const MessageListEntry: React.FC<MessageListEntryProps> = (props) => {
     return (
         <>
             <div className={styles.container} onClick={onClick}>
-                <div className={cn(styles.type, { [styles.typeSent]: props.message.sent })}>{props.message.data[0]}</div>
+                <div
+                    className={cn(styles.type, {
+                        [styles.typeSent]: props.message.type === 'sent',
+                        [styles.typeRecieved]: props.message.type === 'recieved',
+                        [styles.typeEvent]: props.message.type === 'event'
+                    })}
+                >
+                    {props.message.data[0]}
+                </div>
                 <div className={styles.data}>{JSON.stringify(props.message.data.slice(1))}</div>
             </div>
             { expanded && (
@@ -41,4 +49,4 @@ export const MessageListEntry: React.FC<MessageListEntryProps> = (props) => {
             ) }
         </>
     );
-};
+});

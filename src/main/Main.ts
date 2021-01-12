@@ -9,8 +9,7 @@ const injWindowConfig: Electron.BrowserWindowConstructorOptions = {
     title: 'Krunker',
     show: false,
     webPreferences: {
-        contextIsolation: true,
-        preload: path.join(__dirname, './preload.bundle.js')
+        contextIsolation: true
     }
 };
 

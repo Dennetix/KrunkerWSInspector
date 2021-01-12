@@ -3,37 +3,94 @@ import { action, makeObservable, observable } from 'mobx';
 import { decode } from 'msgpack-lite';
 
 export interface Message {
-    data: [string, ...any],
-    sent: boolean,
-    key: string
+    data: [string, ...any];
+    type: 'sent' | 'recieved' | 'event';
+    key: string;
 }
 
 class MessageStore {
 
-    public messages: Message[];
+    public messages: Message[] = [];
+
+    private messageBuffer: Message[] = [];
+    private lastMessageUpdate = 0;
+
+    private secondToLastBytes: number[] = [];
+    private lastBytes: number[] = [];
 
     constructor() {
         makeObservable(this, {
-            messages: observable,
-            addMessage: action,
+            messages: observable.shallow,
+            updateMessages: action,
             clearAll: action
         });
 
-        this.messages = [];
+        setInterval(() => {
+            if (performance.now() - this.lastMessageUpdate >= 125) {
+                this.updateMessages();
+            }
+        }, 250);
     }
 
-    public addMessage(data: Uint8Array, sent: boolean): void {
-        const json = decode(data) as [string, ...any];
+    public addMessage(data: Uint8Array): void {
+        const type = data[0];
+        const json = decode(data.slice(1)) as [string, ...any];
 
-        this.messages.push({
+        this.messageBuffer.push({
             data: json,
-            sent,
+            type: type === 0 ? 'recieved' : (type === 1 ? 'sent' : 'event'),
             key: crypto.createHash('md5').update(Buffer.concat([data.subarray(0, 50), crypto.randomBytes(4)])).digest('hex').substr(0, 8)
         });
+
+        if (performance.now() - this.lastMessageUpdate >= 125) {
+            this.updateMessages();
+        }
+
+        if (type === 1) {
+            this.secondToLastBytes.push(data[data.length - 2]);
+            this.lastBytes.push(data[data.length - 1]);
+        }
+    }
+
+    public updateMessages(): void {
+        this.messages.push(...this.messageBuffer);
+        this.messageBuffer = [];
+        this.lastMessageUpdate = performance.now();
     }
 
     public clearAll(): void {
+        this.messageBuffer = [];
+        this.lastMessageUpdate = 0;
+
         this.messages = [];
+        this.secondToLastBytes = [];
+        this.lastBytes = [];
+    }
+
+    public getLastBytesSequence(length: number): [number[], number[]] {
+        if (this.lastBytes.length === 0) {
+            return [[], []];
+        }
+
+        length = Math.min(length, this.lastBytes.length);
+
+        const res: [number[], number[]] = [[this.secondToLastBytes[0]], [this.lastBytes[0]]];
+
+        for (let i = 1; i < length; i++) {
+            let secondToLastByte = this.secondToLastBytes[i];
+            if (this.secondToLastBytes[i - 1] >= secondToLastByte) {
+                secondToLastByte += 16;
+            }
+            res[0].push(secondToLastByte - this.secondToLastBytes[i - 1]);
+
+            let lastByte = this.lastBytes[i];
+            if (this.lastBytes[i - 1] >= lastByte) {
+                lastByte += 16;
+            }
+            res[1].push(lastByte - this.lastBytes[i - 1]);
+        }
+
+        return res;
     }
 
 }

@@ -35,41 +35,6 @@ const main = () => {
     };
 };
 
-const preload = () => {
-    return {
-        entry: {
-            preload: './src/preload/Preload'
-        },
-        output: {
-            path: path.join(__dirname, './dist'),
-            filename: '[name].bundle.js'
-        },
-        resolve: {
-            extensions: ['.ts', '.js'],
-            modules: ['./node_modules']
-        },
-        module: {
-            rules: [
-                {
-                    test: /\.ts$/,
-                    use: [
-                        {
-                            loader: 'ts-loader',
-                            options: {
-                                onlyCompileBundledFiles: true
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        target: 'electron-renderer',
-        node: {
-            __dirname: false
-        }
-    };
-};
-
 const injection = () => {
     return {
         entry: {
@@ -164,6 +129,7 @@ const renderer = () => {
                 }
             ]
         },
+        externals: ['bufferutil', 'utf-8-validate'],
         target: 'electron-renderer',
         node: {
             __dirname: false
@@ -171,4 +137,4 @@ const renderer = () => {
     };
 };
 
-module.exports = [main, preload, injection, renderer];
+module.exports = [main, injection, renderer];
