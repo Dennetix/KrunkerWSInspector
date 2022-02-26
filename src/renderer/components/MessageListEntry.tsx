@@ -1,6 +1,6 @@
-import * as cn from 'classnames';
+import cn from 'classnames';
 import * as React from 'react';
-import JSONTree from 'react-json-tree';
+import { JSONTree } from 'react-json-tree';
 import { Message } from '../stores/MessageStore';
 import * as styles from './MessageListEntry.css';
 
@@ -37,7 +37,7 @@ export const MessageListEntry: React.FC<MessageListEntryProps> = React.memo(func
                 </div>
                 <div className={styles.data}>{JSON.stringify(props.message.data.slice(1))}</div>
             </div>
-            { expanded && (
+            {expanded && (
                 <>
                     <div className={styles.expandedTopBar}>
                         <button type="button" className={cn('btn btn-sm', { 'btn-secondary': !copySuccess, 'btn-success': copySuccess })} onClick={onCopy}>
@@ -46,7 +46,7 @@ export const MessageListEntry: React.FC<MessageListEntryProps> = React.memo(func
                     </div>
                     <JSONTree data={props.message.data} theme={'bright'} hideRoot />
                 </>
-            ) }
+            )}
         </>
     );
 });
