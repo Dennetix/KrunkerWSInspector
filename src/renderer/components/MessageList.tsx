@@ -21,6 +21,18 @@ export const MessageList: React.FC = () => {
         }
     });
 
+    const onWheel = (e: React.WheelEvent): void => {
+        if (e.deltaY < 0) {
+            setAutoScroll(false);
+        }
+    };
+
+    const onScroll = (): void => {
+        if (!autoScroll && (Math.floor(listRef.current!.scrollHeight - listRef.current!.scrollTop) === listRef.current!.clientHeight)) {
+            setAutoScroll(true);
+        }
+    };
+
     const onFilterChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const value = e.target.value.replace(/(\s|[^a-z0-9,-])/gi, '');
         const newFilter = value.split(',').map(v => v.toLowerCase());
@@ -65,20 +77,20 @@ export const MessageList: React.FC = () => {
                     <div>
                         <button className="btn btn-primary btn-sm" onClick={() => ipcRenderer.send('reopen-window')}>Reopen Krunker</button>
                         <button className="btn btn-danger btn-sm" onClick={() => messageStore.clearAll()}>Clear</button>
-                        <input type="text" placeholder="Filter" onChange={onFilterChange}/>
-                        <input type="text" placeholder="Exclude" onChange={onExcludeChange}/>
-                        <input type="checkbox" checked={showSent} onChange={() => setShowSent(!showSent)}/><span>Sent</span>
-                        <input type="checkbox" checked={showRecieved} onChange={() => setShowRecieved(!showRecieved)}/><span>Recieved</span>
-                        <input type="checkbox" checked={showEvents} onChange={() => setShowEvents(!showEvents)}/><span>Events</span>
-                        <input type="checkbox" checked={autoScroll} onChange={() => setAutoScroll(!autoScroll)}/><span>Auto Scroll</span>
+                        <input type="text" placeholder="Filter" onChange={onFilterChange} />
+                        <input type="text" placeholder="Exclude" onChange={onExcludeChange} />
+                        <input type="checkbox" checked={showSent} onChange={() => setShowSent(!showSent)} /><span>Sent</span>
+                        <input type="checkbox" checked={showRecieved} onChange={() => setShowRecieved(!showRecieved)} /><span>Recieved</span>
+                        <input type="checkbox" checked={showEvents} onChange={() => setShowEvents(!showEvents)} /><span>Events</span>
+                        <input type="checkbox" checked={autoScroll} onChange={() => setAutoScroll(!autoScroll)} /><span>Auto Scroll</span>
                     </div>
                     <div>
                         <span>{secondToLastBytesSequence}</span>
                         <span>{lastByteSequence}</span>
                     </div>
                 </div>
-                <div className={styles.list} ref={listRef}>
-                    { messages.map(m => <MessageListEntry key={m.key} message={m} />) }
+                <div className={styles.list} ref={listRef} onWheel={onWheel} onScroll={onScroll}>
+                    {messages.map(m => <MessageListEntry key={m.key} message={m} />)}
                 </div>
             </div>
         );

@@ -4,6 +4,7 @@ import { decode } from 'msgpack-lite';
 
 export interface Message {
     data: [string, ...any];
+    binary: Uint8Array;
     type: 'sent' | 'recieved' | 'event';
     key: string;
 }
@@ -33,20 +34,21 @@ class MessageStore {
     }
 
     public addMessage(data: Uint8Array): void {
-        const type = data[0];
-        const json = decode(data.slice(1)) as [string, ...any];
+        const type = data[0] === 0 ? 'recieved' : (data[0] === 1 ? 'sent' : 'event');
+        data = data.slice(1);
 
         this.messageBuffer.push({
-            data: json,
-            type: type === 0 ? 'recieved' : (type === 1 ? 'sent' : 'event'),
-            key: crypto.createHash('md5').update(Buffer.concat([data.subarray(0, 50), crypto.randomBytes(4)])).digest('hex').substr(0, 8)
+            data: decode(data) as [string, ...any],
+            binary: data.slice(1),
+            type,
+            key: crypto.createHash('md5').update(Buffer.concat([data.subarray(0, 20), crypto.randomBytes(4)])).digest('hex').substring(0, 8)
         });
 
         if (performance.now() - this.lastMessageUpdate >= 125) {
             this.updateMessages();
         }
 
-        if (type === 1) {
+        if (type === 'sent') {
             this.secondToLastBytes.push(data[data.length - 2]);
             this.lastBytes.push(data[data.length - 1]);
         }
